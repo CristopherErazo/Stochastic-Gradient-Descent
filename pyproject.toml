@@ -1,0 +1,13 @@
+[project]
+name = "SGD"
+version = "0.0.1"
+description = "Code for second year TSDS PhD - SISSA"
+authors = [
+    { name = "Cristopher Erazo", email = "cerazova@sissa.it" }
+]
+license = "MIT"
+dependencies = { file = ["requirements.txt"] } 
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
