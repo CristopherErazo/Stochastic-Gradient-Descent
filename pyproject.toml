@@ -1,13 +1,21 @@
+# Choosing a build backend: 
+requires = ["setuptools"] 
+build-backend = "setuptools.build_meta" 
+
 [project]
 name = "SGD"
 version = "0.0.1"
 description = "Code for second year TSDS PhD - SISSA"
-authors = [
-    { name = "Cristopher Erazo", email = "cerazova@sissa.it" }
-]
-license = "MIT"
+license = { file = "LICENSE" } 
+authors = [{ name = "Cristopher Erazo", email = "cerazova@sissa.it" }]
+dynamic = ["dependencies"] 
+
+[tool.setuptools.packages.find] 
+where = ["src"] 
+exclude = ["scripts", "tests", "shell", "experiments","notebooks"] 
+
+[tool.setuptools.dynamic] 
 dependencies = { file = ["requirements.txt"] } 
 
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+[project.optional-dependencies] 
+test = ["pytest"]
