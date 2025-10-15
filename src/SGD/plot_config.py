@@ -5,6 +5,12 @@ Script to set up the configurations for the plots.
 
 import matplotlib.pyplot as plt
 
+
+double_w = 7.2  # Width for double column
+single_w = 3.5  # Width for single column
+pc_colors = ['teal','olivedrab','peru']
+pc_cmaps = ['YlGnBu','plasma','Blues','Greens']
+
 # Define font sizes
 FONTSIZES = {
     'xxs': 4,
