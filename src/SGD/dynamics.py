@@ -2,11 +2,11 @@ import numpy as np
 from .utils import get_progress_bar
 from .gradient import gradients
 from .functions import activations
-from .data import DataGenerator
+from .data import DataGenerator, SpikeGenerator
 
 
 class Trainer:
-    def __init__(self, d, w_teacher, teacher, student, loss, lr, data_generator, N_walkers = None, normalize=True, spherical=True):
+    def __init__(self, d, w_teacher, student, loss, lr, data_generator, N_walkers = None, normalize=True, spherical=True):
         """
         Initialize the Trainer with model parameters and training settings.
         Parameters:
@@ -15,8 +15,6 @@ class Trainer:
             Dimensionality of the input data.
         w_teacher : (d,) array
             Weights of the teacher model.
-        teacher : str
-            Activation function for the teacher model.
         student : str
             Activation function for the student model.
         loss : str
@@ -33,26 +31,23 @@ class Trainer:
         spherical : bool
             Whether to project gradients onto the sphere.
         """
-
         avail_losses = ["mse", "corr"]
-        avail_activations = ["tanh", "relu", "He1", "He2", "He3", "He4", "He5"]
-        
+        avail_activations = ["tanh", "relu", "He1", "He2", "He3", "He4", "He5","softmax"] 
         if N_walkers is not None and N_walkers > 1:
+
             if data_generator.N_walkers is None or data_generator.N_walkers != N_walkers:
                 raise ValueError("N_walkers must match data_generator.N_walkers when using multiple walkers.")
         else:
-            N_walkers = None  # Ensure single chain mode
 
+            N_walkers = None  # Ensure single chain mode
         if not isinstance(w_teacher, np.ndarray) or w_teacher.shape != (d,):
             raise ValueError(f"w_teacher must be a numpy array of shape ({d},)")
         if loss not in avail_losses:
             raise ValueError(f"Loss function '{loss}' not recognized. Available options: {avail_losses}")
-        if teacher not in avail_activations:
-            raise ValueError(f"Teacher activation '{teacher}' not recognized. Available options: {avail_activations}")
         if student not in avail_activations:
             raise ValueError(f"Student activation '{student}' not recognized. Available options: {avail_activations}")
-        if not isinstance(data_generator, DataGenerator):
-            raise ValueError("data_generator must be an instance of the DataGenerator class.")
+        if not ( isinstance(data_generator, DataGenerator) or isinstance(data_generator,SpikeGenerator)):
+            raise ValueError("data_generator must be an instance of the DataGenerator or SpikeGenerator class.")
         if data_generator.d != d:
             raise ValueError("Data generator dimensionality does not match d.")
         if lr <= 0:
@@ -60,7 +55,6 @@ class Trainer:
         
         self.d = d
         self.N_walkers = N_walkers
-        self.teacher_fun, _ = activations[teacher]
         self.student_fun, self.student_deriv = activations[student]
         self.lr = lr
         self.normalize = normalize

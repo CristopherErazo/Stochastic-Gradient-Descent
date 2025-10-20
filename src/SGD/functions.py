@@ -36,6 +36,10 @@ def tanh(x): return np.tanh(x)
 
 def tanh_deriv(x): return 1 - np.tanh(x)**2
 
+def softmax(x): return 1/(1+np.exp(-x))
+
+def softmax_deriv(x): return softmax(x)*(1-softmax(x))
+
 
 
 
@@ -92,4 +96,5 @@ activations = {
     "He3": (He3, He3_deriv),
     "He4": (He4, He4_deriv),
     "He5": (He5, He5_deriv),
+    "softmax": (softmax,softmax_deriv)
 }
