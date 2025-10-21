@@ -22,7 +22,7 @@ def main():
     parser.add_argument('--snr',type=float,default=0.9,help='Signal to noise ratio in (0,1)')
     parser.add_argument('--f_spike',type=float,default=0.5,help='Fraction (probability) of spike during sampling')
     parser.add_argument('--mode',type=str,default='online',help='Sampling mode')
-    parser.add_argument('--spike',type=bool,default=False,help='Run with spike model or nn')
+    parser.add_argument('--spike',type=str,default='False',help='Run with spike model or nn')
     args = parser.parse_args()
     print("Parsed arguments:", args)
     d = args.d
@@ -40,7 +40,7 @@ def main():
     snr = args.snr
     f_spike = args.f_spike
     mode = args.mode
-    spike = args.spike
+    spike = args.spike in ['True','1','yes']
 
     # Initialize weights
     u_spike, w_initial = initialize_weights(d, N_walkers=N_walkers, m0=0.0, mode='fixed')
@@ -63,7 +63,7 @@ def main():
 
     # Run evolution
     print("Starting training...")
-    for step, (w_student, flag , grad) in enumerate(trainer.evolution(w_initial, N_steps, progress=True,data_init=None)):
+    for step, (w_student, flag , grad) in enumerate(trainer.evolution(w_initial, N_steps, progress=False,data_init=None)):
         condition_save = step in tprints or step == N_steps - 1 or step == 0
         
         if condition_save:

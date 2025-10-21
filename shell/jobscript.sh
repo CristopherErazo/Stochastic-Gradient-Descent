@@ -32,7 +32,7 @@ echo "Running single perceptron purely online"
 # Loop over all combinations of parameters
 for lr in "${lr_values[@]}"; do
     echo "Running: alpha=$alpha, d=$d, p=$p, lr=$lr"
-    python -u ../scripts/run_spike.py --spike False --alpha $alpha --d $d  --lr $lr --k $k --student relu --dataset_size 0.0 --p_repeat 0.0 --mode online
+    python -u ../scripts/run_spike.py --spike 'False' --alpha $alpha --d $d  --lr $lr --k $k --student relu --dataset_size 0.0 --p_repeat 0.0 --mode online
 done
 
 end_time=$(date +%s)
@@ -45,7 +45,7 @@ echo "Running single perceptron with d^2 samples"
 # Loop over all combinations of parameters
 for lr in "${lr_values[@]}"; do
     echo "Running: alpha=$alpha, d=$d, p=$p, lr=$lr"
-    python -u ../scripts/run_spike.py --spike False --alpha $alpha --d $d  --lr $lr --k $k --student relu --dataset_size 1.0 --p_repeat 1.0 --mode repeat
+    python -u ../scripts/run_spike.py --spike 'False' --alpha $alpha --d $d  --lr $lr --k $k --student relu --dataset_size 1.0 --p_repeat 1.0 --mode repeat
 done
 
 end_time=$(date +%s)
@@ -59,7 +59,7 @@ echo "Running spike purely online"
 # Loop over all combinations of parameters
 for lr in "${lr_values[@]}"; do
     echo "Running: alpha=$alpha, d=$d, p=$p, lr=$lr"
-    python -u ../scripts/run_spike.py --spike True --alpha $alpha --d $d  --lr $lr --k $k --student tanh --dataset_size 0.0 --p_repeat 0.0 --mode online
+    python -u ../scripts/run_spike.py --spike 'True' --alpha $alpha --d $d  --lr $lr --k $k --student tanh --dataset_size 0.0 --p_repeat 0.0 --mode online
 done
 
 end_time=$(date +%s)
@@ -72,7 +72,7 @@ echo "Running spike with d^2 samples"
 # Loop over all combinations of parameters
 for lr in "${lr_values[@]}"; do
     echo "Running: alpha=$alpha, d=$d, p=$p, lr=$lr"
-    python -u ../scripts/run_spike.py --spike True --alpha $alpha --d $d  --lr $lr --k $k --student tanh --dataset_size 1.0 --p_repeat 1.0 --mode repeat
+    python -u ../scripts/run_spike.py --spike 'True' --alpha $alpha --d $d  --lr $lr --k $k --student tanh --dataset_size 1.0 --p_repeat 1.0 --mode repeat
 done
 
 end_time=$(date +%s)

@@ -6,6 +6,8 @@ alpha=$2
 lr=$3
 k=4
 
+cd ./shell/
+
 # Maximum number of concurrent jobs
 MAX_JOBS=8
 job_count=0
