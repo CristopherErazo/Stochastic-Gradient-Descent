@@ -63,7 +63,7 @@ def main():
 
     # Run evolution
     print("Starting training...")
-    for step, (w_student, flag , grad) in enumerate(trainer.evolution(w_initial, N_steps, progress=True,data_init=None)):
+    for step, (w_student, flag , grad) in enumerate(trainer.evolution(w_initial, N_steps, progress=False,data_init=None)):
         condition_save = step in tprints or step == N_steps - 1 or step == 0
         
         if condition_save:
