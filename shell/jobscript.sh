@@ -1,19 +1,19 @@
 #!/bin/bash
-#SBATCH --job-name=sgd
-#SBATCH --nodes=1
-#SBATCH --ntasks=40
-#SBATCH --time=12:00:00
-#SBATCH --mem=20G
-#SBATCH --partition=regular1,regular2
+# SBATCH --job-name=sgd
+# SBATCH --nodes=1
+# SBATCH --ntasks=40
+# SBATCH --time=12:00:00
+# SBATCH --mem=20G
+# SBATCH --partition=regular1,regular2
 # SBATCH --qos=fastlane # for debugging
-#SBATCH --output=../logs/job-%j.out
-#SBATCH --error=../logs/job-%j.err
+# SBATCH --output=../logs/job-%j.out
+# SBATCH --error=../logs/job-%j.err
 
 
-echo "first step"
-source ../.venv/bin/activate
+# echo "first step"
+# source ../.venv/bin/activate
 
-
+cd ./shell/
 start_time=$(date +%s)
 # Define fixed parameters
 

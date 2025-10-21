@@ -63,7 +63,7 @@ def main():
 
     # Run evolution
     print("Starting training...")
-    for step, (w_student, flag , grad) in enumerate(trainer.evolution(w_initial, N_steps, progress=False,data_init=None)):
+    for step, (w_student, flag , grad) in enumerate(trainer.evolution(w_initial, N_steps, progress=True,data_init=None)):
         condition_save = step in tprints or step == N_steps - 1 or step == 0
         
         if condition_save:
@@ -85,7 +85,7 @@ def main():
 
     # Save results using pickle
 
-    filename = f"logs/trajectories_spike{spike}_mode{mode}_d{d}_p{args.p_repeat}_alpha{alpha}_student{student}_loss{loss}_lr{args.lr}_snr{snr}_Ndataset_{dataset_size}.pkl"
+    filename = f"../logs/trajectories_spike{spike}_mode{mode}_d{d}_p{args.p_repeat}_alpha{alpha}_student{student}_loss{loss}_lr{args.lr}_snr{snr}_Ndataset_{dataset_size}.pkl"
     with open(filename, 'wb') as f:
         pickle.dump(data, f)
     print(f"Results saved to {filename}")
