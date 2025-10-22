@@ -32,7 +32,7 @@ for lr in "${lr_values[@]}"; do
         read student dataset_size p_repeat mode <<< "$combo"
 
         # Run the Python script in background
-        python -u ../scripts/run_spike.py --alpha $alpha --d $d  --lr $lr --k $k \
+        python -u ../scripts/run_spike.py --loss 'corr' --alpha $alpha --d $d  --lr $lr --k $k \
         --spike "True" --student $student --dataset_size $dataset_size \
         --p_repeat $p_repeat --mode $mode > ../logs/combination_st_"$student"_mod_"$mode"_lr_"$mode".log 2>&1 &
         
