@@ -1,9 +1,9 @@
 import numpy as np
 from SGD.dynamics import Trainer
 from SGD.data import DataGenerator , SpikeGenerator
-from SGD.utils import initialize_weights
+from SGD.utils import initialize_weights , save_data , make_params_dict
 import argparse
-import pickle
+import time
 
 def main():
     # Define parameters
@@ -22,7 +22,8 @@ def main():
     parser.add_argument('--snr',type=float,default=0.9,help='Signal to noise ratio in (0,1)')
     parser.add_argument('--f_spike',type=float,default=0.5,help='Fraction (probability) of spike during sampling')
     parser.add_argument('--mode',type=str,default='online',help='Sampling mode')
-    parser.add_argument('--spike',type=bool,default=False,help='Run with spike model or nn')
+    parser.add_argument('--spike',type=str,default='False',help='Run with spike model or nn')
+    parser.add_argument('--progress',type=str,default='False',help='Show progress bar or not')
     args = parser.parse_args()
     print("Parsed arguments:", args)
     d = args.d
@@ -40,10 +41,12 @@ def main():
     snr = args.snr
     f_spike = args.f_spike
     mode = args.mode
-    spike = args.spike
+    spike = args.spike in ['True','1','yes']
+    progress = args.progress in ['True','1','yes']
+
 
     # Initialize weights
-    u_spike, w_initial = initialize_weights(d, N_walkers=N_walkers, m0=0.0, mode='fixed')
+    u_spike, w_initial = initialize_weights(d,N_walkers=N_walkers,m0=0.0,mode='fixed')
 
     # Initialize data generator
     if spike :
@@ -55,40 +58,36 @@ def main():
     trainer = Trainer(d, u_spike, student, loss, lr, data_generator,N_walkers=N_walkers)
 
     # Save data
-    tprints = np.unique(np.logspace(0,np.log10(N_steps),1000).astype(int))
-    data = {
-        'overlap':[],
-        'times':[],
-    }
+    tprints = np.unique(np.logspace(-0.1,np.log10(N_steps),500).astype(int))
+    data = {'overlap':[],'times':tprints}
 
     # Run evolution
-    print("Starting training...")
-    for step, (w_student, flag , grad) in enumerate(trainer.evolution(w_initial, N_steps, progress=True,data_init=None)):
-        condition_save = step in tprints or step == N_steps - 1 or step == 0
-        
-        if condition_save:
+    t0 = time.time()
+    print(f"\nStarting training...")
+    for step, (w_student, flag , grad) in enumerate(trainer.evolution(w_initial, N_steps, progress=progress)):
+        if step in tprints: # Save some steps
             data['overlap'].append(w_student @ u_spike)
-            data['times'].append(step)
+        
+        condition_print = step in tprints[::20]
+        if condition_print : # Print some steps
+            print(f"Step {step + 1}/{N_steps} ...")
 
-        condition_print = False
-        if condition_print:
-            print(f"Step {step + 1}/{N_steps}: overlap = {np.dot(u_spike, w_student):.4f} ")
-            
-    print("End training...")
+    dt = time.time() - t0
+    print(f"End training... Took = {dt/60:.4} min\n")
 
+    # Optional Steps
     for key in data:
-        data[key] = np.array(data[key])
-        print(f"{key} shape: {data[key].shape}")
-    
+        data[key] = np.array(data[key])    
     data['params'] = vars(args)
-    print("Parameters:", data['params'])
 
-    # Save results using pickle
-
-    filename = f"logs/trajectories_spike{spike}_mode{mode}_d{d}_p{args.p_repeat}_alpha{alpha}_student{student}_loss{loss}_lr{args.lr}_snr{snr}_Ndataset_{dataset_size}.pkl"
-    with open(filename, 'wb') as f:
-        pickle.dump(data, f)
-    print(f"Results saved to {filename}")
+    # Save data
+    # Fixed names will be set as subfolder name inside ../data/experiment_name/ folder
+    # Variable names will go on the name of the file after file_name
+    names_fixed = ['d','snr','alpha']
+    names_variable = ['spike','p_repeat','student','loss']
+    params = make_params_dict(names_fixed,names_variable)
+    
+    save_data(data,file_name='overlap',experiment_name='time_traces',params=params)
 
 if __name__ == "__main__":
     main()

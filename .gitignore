@@ -9,4 +9,5 @@ log/
 logs/
 *.egg-info
 *~
-slurm*
+data/
+plots/
