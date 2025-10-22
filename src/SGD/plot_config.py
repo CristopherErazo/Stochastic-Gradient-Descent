@@ -58,3 +58,10 @@ def apply_general_styles():
         'text.usetex': False,
         'text.latex.preamble': r'\usepackage{amsmath,amssymb}'
     })
+
+
+def create_fig(nrows=1,ncols=1,size='single',w=1.0,h=0.5,layout='constrained',sharex=True,sharey=None):
+    width = single_w if size=='single' else double_w
+    figsize = (w*width,h*width)
+    fig , axes = plt.subplots(nrows=nrows,ncols=ncols,figsize=figsize,layout=layout,sharex=sharex,sharey=sharey)
+    return fig , axes

@@ -9,3 +9,5 @@ log/
 logs/
 *.egg-info
 *~
+data/
+plots/
