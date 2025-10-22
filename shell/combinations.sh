@@ -4,6 +4,7 @@
 d=$1
 alpha=$2
 k=4
+loss='corr'
 
 cd ./shell/
 
@@ -36,7 +37,7 @@ for lr in "${lr_values[@]}"; do
         --p_repeat $p_repeat --mode $mode > ../logs/combination_st_"$student"_mod_"$mode"_lr_"$mode".log 2>&1 &
         
         end_time=$(date +%s)
-        elapsed=$(( end_time - start_time ))
+        elapsd=$(( end_time - start_time ))
         echo "Total time so far: ${elapsed} seconds = $(( elapsed / 60 )) minutes"
 
 
