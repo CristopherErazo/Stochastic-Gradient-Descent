@@ -69,7 +69,6 @@ def online_grad_corr_runs(w,x,y,fun,deriv,spherical=False):
     Returns:
     grad : (N_runs,d) array, gradients for each run
     '''
-
     preac = np.sum(w * x, axis=-1)  # (N_runs)
     grad = - (y * deriv(preac))[:,None] * x   # (N_runs,d)
     if spherical:
