@@ -2,8 +2,7 @@ import numpy as np
 from .utils import get_progress_bar
 from .gradient import gradients
 from .functions import activations
-from .data import DataGenerator, SpikeGenerator
-
+from .data import DataGenerator
 
 class Trainer:
     def __init__(self, d, w_teacher, student, loss, lr, data_generator, N_walkers = None, normalize=True, spherical=True):
@@ -32,7 +31,7 @@ class Trainer:
             Whether to project gradients onto the sphere.
         """
         avail_losses = ["mse", "corr"]
-        avail_activations = ["tanh", "relu", "He1", "He2", "He3", "He4", "He5","softmax"] 
+        avail_activations = ["tanh", "relu", "He1", "He2", "He3", "He4", "He5","softmax", "He2+He3"] 
         if N_walkers is not None and N_walkers > 1:
 
             if data_generator.N_walkers is None or data_generator.N_walkers != N_walkers:
@@ -46,9 +45,9 @@ class Trainer:
             raise ValueError(f"Loss function '{loss}' not recognized. Available options: {avail_losses}")
         if student not in avail_activations:
             raise ValueError(f"Student activation '{student}' not recognized. Available options: {avail_activations}")
-        if not ( isinstance(data_generator, DataGenerator) or isinstance(data_generator,SpikeGenerator)):
+        if not  isinstance(data_generator, DataGenerator) :
             raise ValueError("data_generator must be an instance of the DataGenerator or SpikeGenerator class.")
-        if data_generator.d != d:
+        if data_generator.dim != d:
             raise ValueError("Data generator dimensionality does not match d.")
         if lr <= 0:
             raise ValueError("Learning rate must be positive.")
@@ -91,7 +90,8 @@ class Trainer:
             grad = self.gradient(w_student, x, y, self.student_fun, self.student_deriv, self.spherical)
             w_student -= self.lr * grad / self.d
 
-            if self.normalize: w_student /= np.linalg.norm(w_student, axis=-1, keepdims=True)
+            if self.normalize: 
+                w_student /= np.linalg.norm(w_student, axis=-1, keepdims=True)
             
             yield w_student , flag , grad
             pbar.update(1)  
