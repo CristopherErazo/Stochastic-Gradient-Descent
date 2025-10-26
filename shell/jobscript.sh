@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # SBATCH --job-name=sgd
 # SBATCH --nodes=1
 # SBATCH --ntasks=40
@@ -9,71 +10,48 @@
 # SBATCH --output=../logs/job-%j.out
 # SBATCH --error=../logs/job-%j.err
 
-
-# echo "first step"
-# source ../.venv/bin/activate
-
-cd ./shell/
 start_time=$(date +%s)
+echo "Job started at $(date)"
+
 # Define fixed parameters
+snr=5.0 # Signal to noise ratio
+alpha=1.0 # Time steps in units of d^(k-1)
+teacher='He3' # Teacher model in perceptron
+loss='corr' # Loss function
+k=3 # Information exponent
+echo "Fixed parameters: snr=$snr, alpha=$alpha, teacher=$teacher, loss=$loss, k=$k"
 
-d=$1
-alpha=$2 # Time steps in units of d^(k-1)
-k=4 # Information exponent of the problem
-lr=$3
-
+# Define input parameters
+lr=$1
+model=$2
+echo "Input parameters: lr=$lr, model=$model"
+echo "----------------------------------------"
+echo "Current directory: $(pwd)"
 
 # Define the parameter lists
-lr_values=($lr)
+d_values=(128) # 256 512 1024)
+modes=('online' 'repeat')
+students=('He3' 'He2+He3')
 
-# Run single perceptron
-echo "Running single perceptron purely online"
 
 # Loop over all combinations of parameters
-for lr in "${lr_values[@]}"; do
-    echo "Running: alpha=$alpha, d=$d, p=$p, lr=$lr"
-    python -u ../scripts/run_spike.py --spike 'False' --alpha $alpha --d $d  --lr $lr --k $k --student relu --dataset_size 0.0 --p_repeat 0.0 --mode online
+for d in "${d_values[@]}"; do
+    for mode in "${modes[@]}"; do
+        for student in "${students[@]}"; do
+            start_run=$(date +%s)
+            echo "Starting run at $(date)"
+            echo "Running with d=$d, mode=$mode, student=$student"
+            python -u ./scripts/spikes_model.py --model $model --snr $snr --alpha $alpha \
+            --teacher $teacher --loss $loss --k $k \
+            --d $d --mode $mode --lr $lr --student $student > ./logs/run_"$model"_lr_"$lr"_d_"$d"_mode_"$mode"_student_"$student".log 2>&1
+            end_run=$(date +%s)
+            elapsed_run=$(( end_run - start_run ))
+            echo "Run completed at $(date), took ${elapsed_run} seconds = $(( elapsed_run / 60 )) minutes"
+            echo "----------------------------------------"
+        done
+    done
 done
 
-end_time=$(date +%s)
-elapsed=$(( end_time - start_time ))
-echo "Total time so far: ${elapsed} seconds = $(( elapsed / 60 )) minutes"
-
-
-echo "Running single perceptron with d^2 samples"
-
-# Loop over all combinations of parameters
-for lr in "${lr_values[@]}"; do
-    echo "Running: alpha=$alpha, d=$d, p=$p, lr=$lr"
-    python -u ../scripts/run_spike.py --spike 'False' --alpha $alpha --d $d  --lr $lr --k $k --student relu --dataset_size 1.0 --p_repeat 1.0 --mode repeat
-done
-
-end_time=$(date +%s)
-elapsed=$(( end_time - start_time ))
-echo "Total time so far: ${elapsed} seconds = $(( elapsed / 60 )) minutes"
-
-
-# Run single perceptron
-echo "Running spike purely online"
-
-# Loop over all combinations of parameters
-for lr in "${lr_values[@]}"; do
-    echo "Running: alpha=$alpha, d=$d, p=$p, lr=$lr"
-    python -u ../scripts/run_spike.py --spike 'True' --alpha $alpha --d $d  --lr $lr --k $k --student tanh --dataset_size 0.0 --p_repeat 0.0 --mode online
-done
-
-end_time=$(date +%s)
-elapsed=$(( end_time - start_time ))
-echo "Total time so far: ${elapsed} seconds = $(( elapsed / 60 )) minutes"
-
-
-echo "Running spike with d^2 samples"
-
-# Loop over all combinations of parameters
-for lr in "${lr_values[@]}"; do
-    echo "Running: alpha=$alpha, d=$d, p=$p, lr=$lr"
-    python -u ../scripts/run_spike.py --spike 'True' --alpha $alpha --d $d  --lr $lr --k $k --student tanh --dataset_size 1.0 --p_repeat 1.0 --mode repeat
-done
 
 end_time=$(date +%s)
 elapsed=$(( end_time - start_time ))

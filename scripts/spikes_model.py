@@ -48,13 +48,9 @@ def main():
 
     # Fixed names will be set as subfolder name inside ../data/experiment_name/ folder
     # Variable names will go on the name of the file after file_name
-    names_fixed = ['snr','alpha','teacher','loss']
-    names_variable = ['d','mode','lr','student']
+    names_fixed = ['snr','alpha','teacher','loss','rho','N_walkers']
+    names_variable = ['d','mode','lr','student','model']
     params = make_params_dict(names_fixed,names_variable)
-    if model == 'perceptron':
-        file_name = 'perceptron'
-    else:
-        file_name = 'skewed' if model=='skewed' else 'rademacher'
 
     # Scale parameters
     lr = lr * d**(-0.5*k+1)
@@ -81,7 +77,7 @@ def main():
     trainer = Trainer(d, u_spike, student, loss, lr, data_generator,N_walkers=N_walkers)
 
     # Save data
-    tprints = np.unique(np.logspace(-0.1,np.log10(N_steps),500).astype(int))
+    tprints = np.unique(np.logspace(-0.1,np.log10(N_steps),1000).astype(int))
     data = {'overlap':[],'times':[]}
 
     # Run evolution
@@ -92,7 +88,7 @@ def main():
             data['overlap'].append(w_student @ u_spike)
             data['times'].append(step)
         
-        condition_print = step in tprints[::20]
+        condition_print = step in tprints[::100]
         if condition_print : # Print some steps
             print(f"Step {step + 1}/{N_steps} ...")
 
@@ -106,7 +102,7 @@ def main():
     data['final_w'] = w_student
 
     # Save data    
-    save_data(data,file_name=file_name,experiment_name='time_traces',params=params)
+    save_data(data,file_name='evolutions',experiment_name='tmp_time_traces',params=params)
 
 if __name__ == "__main__":
     main()
