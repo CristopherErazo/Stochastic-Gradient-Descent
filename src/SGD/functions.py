@@ -41,6 +41,18 @@ def softmax(x): return 1/(1+np.exp(-x))
 def softmax_deriv(x): return softmax(x)*(1-softmax(x))
 
 
+# Dictionary to map function names to their implementations
+activations = {
+    "tanh": (tanh, tanh_deriv),
+    "relu": (relu, relu_deriv),
+    "He1": (He1, He1_deriv),
+    "He2": (He2, He2_deriv),
+    "He3": (He3, He3_deriv),
+    "He4": (He4, He4_deriv),
+    "He5": (He5, He5_deriv),
+    "softmax": (softmax,softmax_deriv),
+    "He2+He3": (lambda x: He2(x)+He3(x), lambda x: He2_deriv(x)+He3_deriv(x))
+}
 
 
 # # Define activation functions and their derivatives
@@ -87,14 +99,4 @@ def softmax_deriv(x): return softmax(x)*(1-softmax(x))
 # def tanh_deriv(x): return 1 / np.cosh(x)**2
 
 
-# Dictionary to map function names to their implementations
-activations = {
-    "tanh": (tanh, tanh_deriv),
-    "relu": (relu, relu_deriv),
-    "He1": (He1, He1_deriv),
-    "He2": (He2, He2_deriv),
-    "He3": (He3, He3_deriv),
-    "He4": (He4, He4_deriv),
-    "He5": (He5, He5_deriv),
-    "softmax": (softmax,softmax_deriv)
-}
+
