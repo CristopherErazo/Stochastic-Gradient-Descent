@@ -15,7 +15,7 @@ echo "Job started at $(date)"
 
 # Define fixed parameters
 snr=5.0 # Signal to noise ratio
-alpha=1.0 # Time steps in units of d^(k-1)
+alpha=70.0 # Time steps in units of d^(k-1)
 teacher='He3' # Teacher model in perceptron
 loss='corr' # Loss function
 k=3 # Information exponent
@@ -29,7 +29,7 @@ echo "----------------------------------------"
 echo "Current directory: $(pwd)"
 
 # Define the parameter lists
-d_values=(128) # 256 512 1024)
+d_values=(128 256 512 1024 2048)
 modes=('online' 'repeat')
 students=('He3' 'He2+He3')
 

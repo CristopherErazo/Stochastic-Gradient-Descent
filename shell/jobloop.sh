@@ -6,13 +6,13 @@
 
 echo "Starting jobloop.sh"
 
-lr_values=(0.005 0.01 0.05 0.1 0.5)
+lr_values=(0.05 0.1 0.5 1.0)
 models=('perceptron' 'skewed')
 
 for model in "${models[@]}"; do
     for lr in "${lr_values[@]}"; do
         echo "Submitting jobscript for model=$model lr=$lr"
-        sbatch jobscript.sh $lr $model &
+        bash ./shell/jobscript.sh $lr $model > ./logs/job_"$model"_lr"$lr".log 2>&1 &
         sleep 0.01
     done
 done

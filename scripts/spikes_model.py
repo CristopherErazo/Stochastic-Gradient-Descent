@@ -56,7 +56,7 @@ def main():
     lr = lr * d**(-0.5*k+1)
 
     # Initialize weights
-    u_spike, w_initial = initialize_weights(d,N_walkers=N_walkers,m0=0.0,mode='fixed')
+    u_spike, w_initial = initialize_weights(d,N_walkers=N_walkers,m0=0.0,mode='random')
 
 
     # Initialize data model
@@ -102,7 +102,7 @@ def main():
     data['final_w'] = w_student
 
     # Save data    
-    save_data(data,file_name='evolutions',experiment_name='tmp_time_traces',params=params)
+    save_data(data,file_name='evolutions',experiment_name='time_traces',params=params)
 
 if __name__ == "__main__":
     main()
