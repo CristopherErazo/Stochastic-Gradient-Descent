@@ -22,6 +22,8 @@ def main():
     parser.add_argument('--progress',type=str,default='False',help='Show progress bar or not')
     parser.add_argument('--model',type=str,default='perceptron',help='Data Model: perceptron, rademacher, skewed')
     parser.add_argument('--rho',type=float,default=0.7,help='Skewness parameter for skewed model')
+    parser.add_argument('--datasize',type=float,default=1.0,help='Dataset size in units  of d (default is 1)')
+
     args = parser.parse_args()
     print("Parsed arguments:", args)
 
@@ -34,10 +36,11 @@ def main():
     loss = args.loss
     lr = args.lr
     noise = args.noise
-    dataset_size = d
+    datasize = args.datasize
+    dataset_size = int(datasize*d)
     p_repeat = 1.0
     alpha = args.alpha
-    N_steps = int(alpha * d**(k-1))
+    N_steps = int(alpha * d**(k-1) * (np.log(d))**2 )
     snr = args.snr
     mode = args.mode
     progress = args.progress in ['True','1','yes']
@@ -48,7 +51,7 @@ def main():
 
     # Fixed names will be set as subfolder name inside ../data/experiment_name/ folder
     # Variable names will go on the name of the file after file_name
-    names_fixed = ['snr','alpha','teacher','loss','rho','N_walkers']
+    names_fixed = ['snr','alpha','teacher','loss','rho','N_walkers','datasize']
     names_variable = ['d','mode','lr','student','model']
     params = make_params_dict(names_fixed,names_variable)
 

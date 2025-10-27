@@ -10,46 +10,47 @@
 # SBATCH --output=../logs/job-%j.out
 # SBATCH --error=../logs/job-%j.err
 
-start_time=$(date +%s)
-echo "Job started at $(date)"
 
 # Define fixed parameters
 snr=5.0 # Signal to noise ratio
-alpha=70.0 # Time steps in units of d^(k-1)
+alpha=2.0 # Time steps in units of d^(k-1)
 teacher='He3' # Teacher model in perceptron
 loss='corr' # Loss function
 k=3 # Information exponent
-echo "Fixed parameters: snr=$snr, alpha=$alpha, teacher=$teacher, loss=$loss, k=$k"
+datasize=5.0 # Dataset size in units of d
+student='He3' # Student model
+echo "Fixed parameters: snr=$snr, alpha=$alpha, teacher=$teacher, loss=$loss, k=$k ,datasize=$datasize"
+
+start_time=$(date +%s)
+echo "Job started at $(date)"
 
 # Define input parameters
 lr=$1
 model=$2
+mode=$3
+
 echo "Input parameters: lr=$lr, model=$model"
 echo "----------------------------------------"
 echo "Current directory: $(pwd)"
 
 # Define the parameter lists
-d_values=(128 256 512 1024 2048)
-modes=('online' 'repeat')
-students=('He3' 'He2+He3')
+d_values=(100 200 400 800)
+
 
 
 # Loop over all combinations of parameters
 for d in "${d_values[@]}"; do
-    for mode in "${modes[@]}"; do
-        for student in "${students[@]}"; do
-            start_run=$(date +%s)
-            echo "Starting run at $(date)"
-            echo "Running with d=$d, mode=$mode, student=$student"
-            python -u ./scripts/spikes_model.py --model $model --snr $snr --alpha $alpha \
-            --teacher $teacher --loss $loss --k $k \
-            --d $d --mode $mode --lr $lr --student $student > ./logs/run_"$model"_lr_"$lr"_d_"$d"_mode_"$mode"_student_"$student".log 2>&1
-            end_run=$(date +%s)
-            elapsed_run=$(( end_run - start_run ))
-            echo "Run completed at $(date), took ${elapsed_run} seconds = $(( elapsed_run / 60 )) minutes"
-            echo "----------------------------------------"
-        done
-    done
+    start_run=$(date +%s)
+    echo "------------    RUNNING with d=$d    ------------"
+    echo "Starting run at $(date)"
+    python -u ./scripts/spikes_model.py --datasize $datasize --model $model --snr $snr --alpha $alpha \
+    --teacher $teacher --loss $loss --k $k \
+    --d $d --mode $mode --lr $lr --student $student > ./logs/run_"$model"_lr_"$lr".log 2>&1
+    end_run=$(date +%s)
+    elapsed_run=$(( end_run - start_run ))
+    echo "Run completed at $(date), took ${elapsed_run} seconds = $(( elapsed_run / 60 )) minutes"
+    echo "----------------------------------------"
+    echo ""
 done
 
 
