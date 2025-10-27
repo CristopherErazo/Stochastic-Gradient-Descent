@@ -286,22 +286,24 @@ def download_cluster_data(server_name,path_cluster,path_local,filename_cluster,f
     # Define available servers
     servers = {'ulysses':'cerazova@frontend2.hpc.sissa.it:~/',
                 'peralba':'cerazova@peralba.phys.sissa.it:/u/c/cerazova/'}
-    if not server_name in ['ulysses','peralba']:
+    if server_name not in ['ulysses','peralba']:
         raise ValueError('Invalid server name')
     else:
         server = servers[server_name]
     
     # If filename_local not provided use the same as in cluster
-    if filename_local == None : filename_local = filename_cluster
+    if filename_local is None : 
+        filename_local = filename_cluster
 
     # Construct paths
-    cluster = os.path.join(server,path_cluster ,filename_cluster)
+    cluster = os.path.join(server,path_cluster ,filename_cluster).replace('\\','/')
     local = os.path.join(path_local,filename_local)
 
     # Check if file exist locally
     if os.path.exists(local):
         print(f'File already exist: {local}')
         return
+    
 
     # Run scp command to copy from cluster
     result = subprocess.run(['scp', cluster, local], capture_output=True, text=True)
@@ -310,4 +312,5 @@ def download_cluster_data(server_name,path_cluster,path_local,filename_cluster,f
     if result.stderr:
         print(f'File not found: {cluster}')
     else:
-        if show: print(f'SUCCESS LOADING FILE: {filename_cluster}')
+        if show: 
+            print(f'SUCCESS LOADING FILE: {filename_cluster}')

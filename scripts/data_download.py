@@ -1,36 +1,37 @@
 from SGD.utils import make_params_dict , make_data_paths , download_cluster_data
+import os
 
 # Parameters fixed
-d = 100
+snr=5.0
 alpha = 70.0
-snr = 0.9
-spike = True
+teacher = 'He3'
+rho = 0.7
+N_walkers = 10
+loss = 'corr'
 
 # Parameter lists
+ds = [128 ,256 , 512, 1024]
 modes = ['online','repeat']
-losses = ['mse','corr']
-students = ['relu','tanh']
-lrs = [0.01 , 0.05 , 0.1 , 0.5]
+lrs = [0.05 , 0.1 , 0.5 , 1.0]
+students = ['He3','He2+He3']
+models = ['perceptron','skewed']
 
 # Parameters to save
-names_fixed = ['d','snr','alpha']
-names_variable = ['mode','loss','student','lr']
+names_fixed = ['snr','alpha','teacher','loss','rho','N_walkers']
+names_variable = ['d','mode','lr','student','model']
 
-path_cluster = 'SGD_2.0/logs/'
-for mode in modes:
-    if mode == 'online':
-        p_repeat = 0.0
-        dataset_size = 0
-    else:
-        p_repeat = 1.0
-        dataset_size = 10000
-    for loss in losses:
-        for student in students:
-            for lr in lrs:
-                filename_cluster = f"trajectories_spike{spike}_mode{mode}_d{d}_p{p_repeat}_alpha{alpha}_student{student}_loss{loss}_lr{lr}_snr{snr}_Ndataset_{dataset_size}.pkl"
-                
-                params = make_params_dict(names_fixed,names_variable)
-                _ , filename_local , path_local = make_data_paths('overlap', experiment_name= 'test_spike', params=params,base_dir='./data')
+for d in ds:
+    for mode in modes:
+        for lr in lrs:
+            for student in students:
+                for model in models:    
+                    params = make_params_dict(names_fixed,names_variable)
+                    _ , filename , path = make_data_paths('evolutions', experiment_name= 'time_traces', params=params,base_dir='')
+                    path_cluster = os.path.join('SGD_2.0','data',path)
+                    # Transform the path_cluster for a ubuntu cluster
+                    path_cluster = path_cluster.replace('\\','/')
+                    path_local = os.path.join('data',path)
+                    # print(path_cluster,path_local)
 
-                download_cluster_data('peralba',path_cluster,path_local,filename_cluster,filename_local,show=False)
+                    download_cluster_data('peralba',path_cluster,path_local,filename,show=True)
     

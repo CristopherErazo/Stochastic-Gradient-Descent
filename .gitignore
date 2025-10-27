@@ -10,4 +10,4 @@ logs/
 *.egg-info
 *~
 data/
-# plots/
+plots/
