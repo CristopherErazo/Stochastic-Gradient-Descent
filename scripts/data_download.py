@@ -2,34 +2,31 @@ from SGD.utils import make_params_dict , make_data_paths , download_cluster_data
 import os
 
 # Parameters fixed
-snr=5.0
-alpha = 2.0
+alpha = 50.0
 teacher = 'He3'
-rho = 0.7
-N_walkers = 10
+N_walkers = 20
 loss = 'corr'
-lr = 0.2
-student = 'He3'
-datasize = 5.0 
+model = 'perceptron'
+mode = 'online'
 
 # Parameter lists
-ds = [100,200,400,800]
-modes = ['online','repeat']
-models = ['perceptron','skewed']
+ds = [250,500,1000,2000]
+lr_values = [0.01 , 0.05  , 0.1]
+students = ['He3','relu']
+variations = ['None','twice']
 
 # Parameters to save
-
-names_fixed = ['snr','alpha','teacher','loss','rho','N_walkers','datasize']
-names_variable = ['d','mode','lr','student','model']
-
+names_fixed = ['alpha','teacher','loss','N_walkers','model','mode']
+names_variable = ['d','lr','student','variation']
 
 for d in ds:
-    for mode in modes:
-        for model in models:    
-            params = make_params_dict(names_fixed,names_variable)
-            _ , filename , path = make_data_paths('evolutions', experiment_name= 'time_traces', params=params,base_dir='')
-            path_cluster = os.path.join('SGD/data',path)
-            path_local = os.path.join('data',path)
+    for lr in lr_values:
+        for student in students:
+            for variation in variations:
+                params = make_params_dict(names_fixed,names_variable)
 
-            download_cluster_data('peralba',path_cluster,path_local,filename,show=True)
+                _ , filename , path = make_data_paths('evolutions', experiment_name= 'repetita_iuvant_check', params=params,base_dir='')
+                path_cluster = os.path.join('SGD/data',path)
+                path_local = os.path.join('data',path)
 
+                download_cluster_data('peralba',path_cluster,path_local,filename,show=True)
