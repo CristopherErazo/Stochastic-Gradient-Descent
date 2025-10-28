@@ -53,6 +53,8 @@ for d in "${d_values[@]}"; do
     echo ""
 done
 
+#parallel -j 48 "bash ./shell/jobscript.sh {1} {2} {3}" ::: "${lr_values[@]}" ::: "${models[@]}" ::: "${modes[@]}"
+
 
 end_time=$(date +%s)
 elapsed=$(( end_time - start_time ))
