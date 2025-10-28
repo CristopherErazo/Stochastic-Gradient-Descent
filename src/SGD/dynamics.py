@@ -58,7 +58,7 @@ class Trainer:
         self.lr = lr
         self.normalize = normalize
         self.spherical = spherical
-        self.sample_data = data_generator.generate
+        self.sample_data = data_generator.distributor
         self.w_teacher = w_teacher
         if self.N_walkers is None or self.N_walkers == 1:
             self.gradient = gradients[loss]['single_chain']
