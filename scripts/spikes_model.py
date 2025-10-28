@@ -23,6 +23,7 @@ def main():
     parser.add_argument('--model',type=str,default='perceptron',help='Data Model: perceptron, rademacher, skewed')
     parser.add_argument('--rho',type=float,default=0.7,help='Skewness parameter for skewed model')
     parser.add_argument('--datasize',type=float,default=1.0,help='Dataset size in units  of d (default is 1)')
+    parser.add_argument('--variation',type=str,default='None',help='Variation mode for data sampling: None, twice')
 
     args = parser.parse_args()
     print("Parsed arguments:", args)
@@ -40,26 +41,30 @@ def main():
     dataset_size = int(datasize*d)
     p_repeat = 1.0
     alpha = args.alpha
-    N_steps = int(alpha * d**(k-1) * (np.log(d))**2 )
+    N_steps = int(alpha * d ) #d**(k-1) * (np.log(d))**2 )
     snr = args.snr
     mode = args.mode
     progress = args.progress in ['True','1','yes']
     model = args.model
     rho = args.rho
+    if args.variation == 'None':
+        variation = None
+    else:
+        variation = args.variation 
 
     # Define parameters to save
 
     # Fixed names will be set as subfolder name inside ../data/experiment_name/ folder
     # Variable names will go on the name of the file after file_name
-    names_fixed = ['snr','alpha','teacher','loss','rho','N_walkers','datasize']
-    names_variable = ['d','mode','lr','student','model']
+    names_fixed = ['alpha','teacher','loss','N_walkers','model','mode']
+    names_variable = ['d','lr','student']
     params = make_params_dict(names_fixed,names_variable)
 
     # Scale parameters
-    lr = lr * d**(-0.5*k+1)
+    lr = lr / d #**(-0.5*k+1)
 
     # Initialize weights
-    u_spike, w_initial = initialize_weights(d,N_walkers=N_walkers,m0=0.0,mode='random')
+    u_spike, w_initial = initialize_weights(d,N_walkers=N_walkers,m0=0.0,mode='fixed')
 
 
     # Initialize data model
@@ -74,13 +79,14 @@ def main():
         raise ValueError(f"Unknown model type: {model}")
     
     # Initialize data generator
-    data_generator = DataGenerator(data_sampler,N_walkers=N_walkers,mode=mode,dataset_size=dataset_size,p_repeat=p_repeat) 
+    data_generator = DataGenerator(data_sampler,N_walkers=N_walkers,mode=mode,dataset_size=dataset_size,p_repeat=p_repeat,variation=variation) 
 
     # Initialize Trainer
     trainer = Trainer(d, u_spike, student, loss, lr, data_generator,N_walkers=N_walkers)
 
     # Save data
-    tprints = np.unique(np.logspace(-0.1,np.log10(N_steps),1000).astype(int))
+    # tprints = np.unique(np.logspace(-0.1,np.log10(N_steps),1000).astype(int))
+    tprints = np.unique(np.linspace(0,N_steps,1000).astype(int))
     data = {'overlap':[],'times':[]}
 
     # Run evolution
@@ -105,7 +111,7 @@ def main():
     data['final_w'] = w_student
 
     # Save data    
-    save_data(data,file_name='evolutions',experiment_name='time_traces',params=params)
+    save_data(data,file_name='evolutions',experiment_name='repetita_iuvant_check',params=params)
 
 if __name__ == "__main__":
     main()

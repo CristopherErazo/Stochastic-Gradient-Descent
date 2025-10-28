@@ -233,7 +233,7 @@ class DataGenerator:
     """
     Wraps an InputSampler to deliver samples controlling batch, walkers, repetitions, etc.
     """
-    def __init__(self, data_sampler:DataSampler, N_walkers:Optional[int]=1, mode:str='online',dataset:Optional[list[list[Tuple[np.ndarray,np.ndarray]]]]=None, dataset_size:Optional[int]=None, p_repeat:Optional[float]=None):
+    def __init__(self, data_sampler:DataSampler, N_walkers:Optional[int]=1, mode:str='online',dataset:Optional[list[list[Tuple[np.ndarray,np.ndarray]]]]=None, dataset_size:Optional[int]=None, p_repeat:Optional[float]=None, variation:Optional[str]=None):
         """
         Parameters:
         ----------- 
@@ -249,6 +249,8 @@ class DataGenerator:
             Size of dataset to generate if dataset is None and mode is 'repeat'.
         p_repeat : float or None, optional
             Probability of sampling from dataset in 'repeat' mode. If None, defaults to 0.0.
+        variation : str or None
+            'twice' to always return the same sample twice in a row.
         """
 
         
@@ -293,14 +295,23 @@ class DataGenerator:
         
         
         if mode == 'repeat':
-            self.generate = self.sample_with_repetitions
+            self.generator = self.sample_with_repetitions
         else:
-            self.generate = self.sample_online
+            self.generator = self.sample_online
+
+        
+        if variation is None:
+            self.distributor = self.generator
+        elif variation == 'twice':
+            self.distributor = self.sample_twice
+
         
         self.dim = data_sampler.dim
         self.mode = mode
         self.dataset_size = dataset_size
         self.rng = self.sampler._rng
+        self._count = 0 # sample counter
+        self._state = None  # placeholder for future state tracking
 
 
     def sample_online(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -341,8 +352,6 @@ class DataGenerator:
         return dataset
     
 
-
-
     def sample_with_repetitions(self):
         """
         Generate data for N_walkers in parallel, each with probability p_repeat of picking from dataset. Used in 'repeat' mode.
@@ -372,6 +381,31 @@ class DataGenerator:
         flag = repeat_mask.astype(int)
 
         return x, y, flag
+    
+
+    ## Variations for the distribution of samples
+
+    def sample_twice(self):
+        """
+        Use sample_with_repetitions to get the same sample twice in a row.
+        Returns:
+        --------
+        x : (N_walkers, dim) array
+            Input data for each walker.
+        y : (N_walkers,) array
+            Target values for each walker.
+        flag : (N_walkers,) array
+            1 if sampled from dataset, 0 if fresh.
+        """
+        if self._count == 0:
+            self._state = self.generator()
+            self._count = 1
+            return self._state
+        else:
+            self._count = 0
+            return self._state
+
+
 
 
     def get_dataset(self, how='arrays'):
