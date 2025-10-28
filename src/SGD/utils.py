@@ -296,13 +296,14 @@ def download_cluster_data(server_name,path_cluster,path_local,filename_cluster,f
         filename_local = filename_cluster
 
     # Construct paths
-    cluster = os.path.join(server,path_cluster ,filename_cluster).replace('\\','/')
+    cluster = os.path.join(server, path_cluster ,filename_cluster).replace('\\','/')
     local = os.path.join(path_local,filename_local)
-
     # Check if file exist locally
     if os.path.exists(local):
         print(f'File already exist: {local}')
         return
+    else: # create local directory if not existing
+        os.makedirs(path_local, exist_ok=True)
     
 
     # Run scp command to copy from cluster
@@ -310,7 +311,9 @@ def download_cluster_data(server_name,path_cluster,path_local,filename_cluster,f
 
     # Report
     if result.stderr:
-        print(f'File not found: {cluster}')
+        # print(f'File not found: {cluster}')
+        print('Error:')
+        print(result.stderr)
     else:
         if show: 
             print(f'SUCCESS LOADING FILE: {filename_cluster}')
