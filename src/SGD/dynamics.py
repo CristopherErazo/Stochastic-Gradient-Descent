@@ -1,7 +1,8 @@
 import numpy as np
 from .utils import get_progress_bar
 from .gradient import gradients
-from .functions import activations
+# from .functions import activations
+from .functions import get_activation
 from .data import DataGenerator
 
 class Trainer:
@@ -43,8 +44,8 @@ class Trainer:
             raise ValueError(f"w_teacher must be a numpy array of shape ({d},)")
         if loss not in avail_losses:
             raise ValueError(f"Loss function '{loss}' not recognized. Available options: {avail_losses}")
-        if student not in avail_activations:
-            raise ValueError(f"Student activation '{student}' not recognized. Available options: {avail_activations}")
+        # if student not in avail_activations:
+            # raise ValueError(f"Student activation '{student}' not recognized. Available options: {avail_activations}")
         if not  isinstance(data_generator, DataGenerator) :
             raise ValueError("data_generator must be an instance of the DataGenerator or SpikeGenerator class.")
         if data_generator.dim != d:
@@ -54,7 +55,7 @@ class Trainer:
         
         self.d = d
         self.N_walkers = N_walkers
-        self.student_fun, self.student_deriv = activations[student]
+        self.student_fun, self.student_deriv = get_activation(student) #activations[student]
         self.lr = lr
         self.normalize = normalize
         self.spherical = spherical
