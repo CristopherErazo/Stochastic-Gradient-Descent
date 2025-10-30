@@ -7,18 +7,18 @@
 max_jobs=16  
 
 # Fixed parameters
-alpha=50.0
+alpha=100.0
 teacher='He3'
 loss='corr'
-N_walkers=20
-model='perceptron'
+N_walkers=40
+model='skewed'
 mode='online'
 
 
 # Variable parameters
-d_values=(250 500 1000 2000)
+d_values=(500 1000 2000 4000)
 lr_values=(0.01 0.05 0.1)
-students=('He3' 'relu')
+students=('He3')
 variations=('None' 'twice')
 
 

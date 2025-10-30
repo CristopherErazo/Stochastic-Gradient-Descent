@@ -22,7 +22,7 @@ def main():
     parser.add_argument('--progress',type=str,default='False',help='Show progress bar or not')
     parser.add_argument('--model',type=str,default='perceptron',help='Data Model: perceptron, rademacher, skewed')
     parser.add_argument('--rho',type=float,default=0.7,help='Skewness parameter for skewed model')
-    parser.add_argument('--datasize',type=float,default=1.0,help='Dataset size in units  of d (default is 1)')
+    parser.add_argument('--datasize',type=float,default=5.0,help='Dataset size in units  of d (default is 1)')
     parser.add_argument('--variation',type=str,default='None',help='Variation mode for data sampling: None, twice')
 
     args = parser.parse_args()
@@ -57,11 +57,11 @@ def main():
     # Fixed names will be set as subfolder name inside ../data/experiment_name/ folder
     # Variable names will go on the name of the file after file_name
     names_fixed = ['alpha','teacher','loss','N_walkers','model','mode']
-    names_variable = ['d','lr','student']
+    names_variable = ['d','lr','student','variation','snr','rho']
     params = make_params_dict(names_fixed,names_variable)
 
     # Scale parameters
-    lr = lr / d #**(-0.5*k+1)
+    lr = lr  #**(-0.5*k+1)
 
     # Initialize weights
     u_spike, w_initial = initialize_weights(d,N_walkers=N_walkers,m0=0.0,mode='fixed')

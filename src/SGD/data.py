@@ -6,7 +6,8 @@ This module contains a class for data generation .
 from abc import ABC, abstractmethod
 import numpy as np
 from typing import Optional, Tuple
-from .functions import activations
+# from .functions import activations
+from .functions import get_activation
 
 
 # ##########################################################
@@ -35,7 +36,7 @@ class Perceptron(DataSampler):
             input dimension
         w_teacher : array (dim,), optional
             teacher weight vector. If None, sample randomly from S(dim-1)
-        teacher : str
+        teacher : str or list of names or list of (name,weight) pairs or dict
             activation function name for the teacher
         noise : float, optional
             standard deviation of additive Gaussian noise
@@ -53,7 +54,7 @@ class Perceptron(DataSampler):
         else:
             self.w_teacher = w_teacher
         self.noise = noise
-        self.teacher_fun = activations[teacher][0]
+        self.teacher_fun = get_activation(teacher)[0]
 
     
     def sample(self, n:int=1) -> Tuple[np.ndarray, np.ndarray]:
@@ -116,8 +117,9 @@ class SpikedCumulant(DataSampler):
         self.p_spike = p_spike
 
         # Compute the whitening matrix (square root of inv of cov)
-        uuT = np.outer(self.spike, self.spike)
-        self._S = np.eye(dim) - snr / (1 + snr + np.sqrt(1 + snr)) * uuT
+        # uuT = np.outer(self.spike, self.spike)
+        # self._S = np.eye(dim) - snr / (1 + snr + np.sqrt(1 + snr)) * uuT
+        self._alpha = snr / (1 + snr + np.sqrt(1 + snr))
 
     @abstractmethod
     def _sample_latents(self, n:int) -> np.ndarray:
@@ -149,8 +151,12 @@ class SpikedCumulant(DataSampler):
         xs += np.sqrt(self.snr) * (gs[:, None] * self.spike)
         # whiten
         if self.whiten:
-            xs = xs @ self._S
-
+            # xs = xs @ self._S
+            # xs shape (n, d), _spike shape (d,)
+            # compute projection coefficients (n,)
+            proj = xs @ self.spike
+            # subtract alpha * (proj[:,None] * spike[None,:])  -> O(n*d)
+            xs = xs - self._alpha * (proj[:, None] * self.spike[None, :])
         return xs       
 
 
