@@ -117,8 +117,9 @@ class SpikedCumulant(DataSampler):
         self.p_spike = p_spike
 
         # Compute the whitening matrix (square root of inv of cov)
-        uuT = np.outer(self.spike, self.spike)
-        self._S = np.eye(dim) - snr / (1 + snr + np.sqrt(1 + snr)) * uuT
+        # uuT = np.outer(self.spike, self.spike)
+        # self._S = np.eye(dim) - snr / (1 + snr + np.sqrt(1 + snr)) * uuT
+        self._alpha = snr / (1 + snr + np.sqrt(1 + snr))
 
     @abstractmethod
     def _sample_latents(self, n:int) -> np.ndarray:
@@ -150,8 +151,12 @@ class SpikedCumulant(DataSampler):
         xs += np.sqrt(self.snr) * (gs[:, None] * self.spike)
         # whiten
         if self.whiten:
-            xs = xs @ self._S
-
+            # xs = xs @ self._S
+            # xs shape (n, d), _spike shape (d,)
+            # compute projection coefficients (n,)
+            proj = xs @ self.spike
+            # subtract alpha * (proj[:,None] * spike[None,:])  -> O(n*d)
+            xs = xs - self._alpha * (proj[:, None] * self.spike[None, :])
         return xs       
 
 
