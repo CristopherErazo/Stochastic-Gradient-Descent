@@ -161,7 +161,7 @@ def dict_to_name(dic, sep='_', key_value_sep=''):
     items = sorted(dic.items())  # sort for reproducibility
     return sep.join(f"{k}{key_value_sep}{sanitize(v)}" for k, v in items)
 
-def make_paths_general(base_dir,subfolder_names, file_name ,dic = None ,ext=None):
+def make_paths_general(base_dir,subfolder_names, file_name ,dic = None ,ext=None,create_dir=True):
     """
     Create a consistent folder structure for experiment results.
     """
@@ -182,19 +182,20 @@ def make_paths_general(base_dir,subfolder_names, file_name ,dic = None ,ext=None
 
     file_path = os.path.join(dir_path,filename)
     # Ensure the directory exists
-    os.makedirs(dir_path, exist_ok=True)
+    if create_dir:
+        os.makedirs(dir_path, exist_ok=True)
     return file_path , filename, dir_path
 
-def make_data_paths(file_name, experiment_name= '', params=None,ext='pkl',base_dir='./data'):
+def make_data_paths(file_name, experiment_name= '', params=None,ext='pkl',base_dir='./data',create_dir=True):
 
-    if params == None or not 'fixed' in params.keys() :
+    if params is None or 'fixed' not in params.keys() :
         subfolder_names = experiment_name
         params_file = params
     elif 'fixed' in params.keys() and 'variable' in params.keys():
         subfolder_names = [experiment_name,dict_to_name(params['fixed'])]
         params_file = params['variable']
 
-    file_path, filename , dir_path = make_paths_general(base_dir,subfolder_names, file_name ,params_file ,ext=ext)
+    file_path, filename , dir_path = make_paths_general(base_dir,subfolder_names, file_name ,params_file ,ext=ext,create_dir=create_dir)
 
     return file_path , filename, dir_path
 
@@ -259,7 +260,7 @@ def load_data(file_name, experiment_name= '', params=None,show=True,ext='pkl',ba
         subfolder_names = [experiment_name,dict_to_name(params['fixed'])]
         params_file = params['variable']
 
-    file_path, filename , dir_path = make_paths_general(base_dir,subfolder_names, file_name ,params_file ,ext=ext)
+    file_path, filename , dir_path = make_paths_general(base_dir,subfolder_names, file_name ,params_file ,ext=ext,create_dir=False)
 
     if ext == 'txt':
         data = np.loadtxt(filename)
