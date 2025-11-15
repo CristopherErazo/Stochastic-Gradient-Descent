@@ -82,7 +82,7 @@ class SpikedCumulant(DataSampler):
     Spiked cumulant model with arbitrary latent variable.
     """
 
-    def __init__(self, dim , spike:Optional[np.ndarray]=None, snr:float=1.0, rng:Optional[np.random.Generator]=None, whiten:bool=True, p_spike:float=1.0):
+    def __init__(self, dim , spike:Optional[np.ndarray]=None, snr:float=5.0, rng:Optional[np.random.Generator]=None, whiten:bool=True, p_spike:float=0.5):
         """
         Parameters:
         -----------
@@ -186,7 +186,7 @@ class RademacherCumulant(SpikedCumulant):
     Spiked cumulant model with arbitrary latent variable.
     """
 
-    def __init__(self, dim , spike:Optional[np.ndarray]=None, snr:float=1.0, rng:Optional[np.random.Generator]=None, whiten:bool=True, p_spike:float=1.0):
+    def __init__(self, dim , spike:Optional[np.ndarray]=None, snr:float=5.0, rng:Optional[np.random.Generator]=None, whiten:bool=True, p_spike:float=0.5):
         super().__init__(dim, spike , snr,  rng, whiten,p_spike)
 
     def _sample_latents(self, n:int) -> np.ndarray:
@@ -202,7 +202,7 @@ class SkewedCumulant(SpikedCumulant):
     _rho = 0.1  # skewness parameter
     _S = None  # whitening matrix
 
-    def __init__(self, dim , spike:Optional[np.ndarray]=None, snr:float=1.0, rng:Optional[np.random.Generator]=None, whiten:bool=True, p_spike:float=1.0,rho:float=0.1):
+    def __init__(self, dim , spike:Optional[np.ndarray]=None, snr:float=5.0, rng:Optional[np.random.Generator]=None, whiten:bool=True, p_spike:float=0.5,rho:float=0.7):
         
         """
         Additional parameters:
@@ -234,7 +234,7 @@ class DataGenerator:
     """
     Wraps an InputSampler to deliver samples controlling batch, walkers, repetitions, etc.
     """
-    def __init__(self, data_sampler:DataSampler, N_walkers:Optional[int]=1, mode:str='online',dataset:Optional[list[list[Tuple[np.ndarray,np.ndarray]]]]=None, dataset_size:Optional[int]=None, p_repeat:Optional[float]=None, variation:Optional[str]=None):
+    def __init__(self, data_sampler:DataSampler, N_walkers:Optional[int]=1, mode:str='online',dataset:Optional[list[list[Tuple[np.ndarray,np.ndarray]]]]=None, dataset_size:Optional[int]=None, p_repeat:Optional[float]=None):
         """
         Parameters:
         ----------- 
@@ -250,8 +250,6 @@ class DataGenerator:
             Size of dataset to generate if dataset is None and mode is 'repeat'.
         p_repeat : float or None, optional
             Probability of sampling from dataset in 'repeat' mode. If None, defaults to 0.0.
-        variation : str or None
-            'twice' to always return the same sample twice in a row.
         """
 
         
@@ -300,13 +298,7 @@ class DataGenerator:
         else:
             self.generator = self.sample_online
 
-        
-        if variation is None:
-            self.distributor = self.generator
-        elif variation == 'twice':
-            self.distributor = self.sample_twice
 
-        
         self.dim = data_sampler.dim
         self.mode = mode
         self.dataset_size = dataset_size
