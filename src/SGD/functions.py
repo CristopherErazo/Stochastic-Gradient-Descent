@@ -16,9 +16,9 @@ def He2(x): return (x**2 - 1) / np.sqrt(2)
 
 def He2_deriv(x): return 2 * x / np.sqrt(2)
 
-def He3(x): return (x**3 - 3 * x) / np.sqrt(6)
+def He3(x): return (x**3 - 3 * x)# / np.sqrt(6)
 
-def He3_deriv(x): return  (3 * x**2 - 3) / np.sqrt(6)
+def He3_deriv(x): return  (3 * x**2 - 3)# / np.sqrt(6)
 
 def He4(x): return (x**4 - 6 * x**2 + 3) / np.sqrt(24)
 
